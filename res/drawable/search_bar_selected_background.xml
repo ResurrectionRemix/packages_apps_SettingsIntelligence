@@ -1,0 +1,11 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<item>
+    <shape>
+        <gradient
+            android:startColor="@*android:color/search_bar_background"
+            android:endColor="@*android:color/search_bar_background_2"
+            android:angle="45"
+            android:type="linear" />
+    </shape>
+</item>
+</selector>
