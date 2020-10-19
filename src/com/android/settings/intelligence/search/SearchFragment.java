@@ -23,8 +23,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
+import android.content.ContentResolver;
 import android.content.Loader;
 import android.os.Bundle;
+import android.os.UserHandle;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,6 +51,8 @@ import com.android.settings.intelligence.search.savedqueries.SavedQueryControlle
 import com.android.settings.intelligence.search.savedqueries.SavedQueryViewHolder;
 
 import java.util.List;
+
+import android.provider.Settings;
 
 /**
  * This fragment manages the lifecycle of indexing and searching.
@@ -103,6 +107,8 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
     SearchView mSearchView;
     @VisibleForTesting
     LinearLayout mNoResultsView;
+
+    private Toolbar toolbar;
 
     @VisibleForTesting
     final RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
@@ -164,9 +170,13 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
 
         mNoResultsView = view.findViewById(R.id.no_results_layout);
 
-        final Toolbar toolbar = view.findViewById(R.id.search_toolbar);
+        toolbar = view.findViewById(R.id.search_toolbar);
         activity.setActionBar(toolbar);
         activity.getActionBar().setDisplayHomeAsUpEnabled(true);
+        try {
+           recreateBg();
+        } catch (Exception e) {
+        }
 
         mSearchView = toolbar.findViewById(R.id.search_view);
         mSearchView.setQuery(mQuery, false /* submitQuery */);
@@ -174,6 +184,22 @@ public class SearchFragment extends Fragment implements SearchView.OnQueryTextLi
         mSearchView.requestFocus();
 
         return view;
+    }
+
+    private boolean isSearchTint() {
+        Context appContext = getContext().getApplicationContext();
+        return Settings.System.getInt(appContext.getContentResolver(),
+            Settings.System.SETTINGS_SEARCHBAR_TINT, 0) == 1;
+    }
+
+    private void recreateBg() {
+        if (toolbar != null) {
+            if (isSearchTint()) {
+                toolbar.setBackgroundResource(R.drawable.search_bar_selected_background);
+            } else {
+                toolbar.setBackgroundResource(R.color.search_panel_background);
+            }
+        }
     }
 
     @Override
